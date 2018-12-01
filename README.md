@@ -9,18 +9,18 @@ gpuview
 
 GPU is an expensive resource, and deep learning practitioners have to monitor the
 health and usage of their GPUs, such as the temperature, memory, utilization, and the users. 
-This can be done with tools like `nvidia-smi` and `gpustat` from the terminal or command-line.  
-
-However, often times, it is not convenient to `ssh` into servers to just check the GPU status. 
-`gpuview` is meant to mitigate this through lightweight web dashboard that runs on top of 
+This can be done with tools like `nvidia-smi` and `gpustat` from the terminal or command-line.
+Often times, however, it is not convenient to `ssh` into servers to just check the GPU status. 
+`gpuview` is meant to mitigate this by running a lightweight web dashboard on top of 
 [`gpustat`][repo_gpustat].  
 
 With `gpuview` one can monitor GPUs on the go, though a web browser. Moreover, **multiple GPU servers** 
 can be registered into one `gpuview` dashboard and all stats are aggregated and accessible from one place.
 
 
-> `gpuview` installs the latest version of `gpustat` from `pypi`, therefore, its commands are available 
-from the terminal.
+Thumbnail view of GPUs across multiple servers.  
+
+![Screenshot: gpuview](imgs/dash-1.png)
 
 
 Setup
@@ -37,6 +37,10 @@ $ pip install gpuview
 ```
 $ pip install git+https://github.com/fgaim/gpuview.git@master
 ```
+
+> `gpuview` installs the latest version of `gpustat` from `pypi`, therefore, its commands are available 
+from the terminal.
+
 
 
 Usage
@@ -112,13 +116,6 @@ running in a trusted network, using the `--safe-zone` option to report all detai
 
 The `--exclude-self` option of the start command can be used to prevent other dashboards from getting stats of the current machine. This way the stats are shown only on the host's own dashboard.
 
-
-demo
------------
-
-Thumbnail view of GPUs across multiple servers.  
-
-![Screenshot: gpuview](imgs/dash-1.png)
 
 Detailed view of GPUs across multiple servers.  
 
