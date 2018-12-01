@@ -1,0 +1,5 @@
+gpustat>=0.5.0
+bottle>=0.12.14
+flake
+pytest
+pytest-cov
