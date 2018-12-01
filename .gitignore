@@ -1,0 +1,11 @@
+__pycache__
+.vscode/
+.pytest_cache/
+.eggs/
+dist/
+build/
+tmp/
+*.egg-info/
+gpuhosts.db
+gpuview.log
+pypi.sh
