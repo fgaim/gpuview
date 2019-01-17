@@ -20,11 +20,13 @@ can be registered into one `gpuview` dashboard and all stats are aggregated and 
 
 Thumbnail view of GPUs across multiple servers.  
 
-![Screenshot: gpuview](imgs/dash-1.png)
+![Screenshot of gpuview](https://github.com/fgaim/gpuview/blob/master/imgs/dash-1.png)
 
 
 Setup
 -----
+
+Python is required,`gpuview` has been tested with both 2.7 and 3 versions.
 
 Install from [PyPI][pypi_gpuview]:
 
@@ -119,7 +121,7 @@ The `--exclude-self` option of the start command can be used to prevent other da
 
 Detailed view of GPUs across multiple servers.  
 
-![Screenshot: gpuview](imgs/dash-2.png)
+![Screenshot of gpuview](https://github.com/fgaim/gpuview/blob/master/imgs/dash-1.png)
 
 
 License
