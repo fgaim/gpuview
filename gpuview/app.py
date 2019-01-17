@@ -14,7 +14,7 @@ from datetime import datetime
 from bottle import Bottle, TEMPLATE_PATH, template, response
 
 from .utils import cmd_args_parser
-from .core import my_gpustat, all_gpustats, add_host, remove_host, safe_zone
+from .core import my_gpustat, all_gpustats, add_host, remove_host, safe_zone, print_hosts
 
 
 app = Bottle()
@@ -66,6 +66,10 @@ def main():
         add_host(args.url, args.name)
     elif 'remove' == args.action:
         remove_host(args.url)
+    elif 'hosts' == args.action:
+        print_hosts()
+    else:
+        parser.print_help()
 
 
 if __name__ == '__main__':

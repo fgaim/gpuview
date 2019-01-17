@@ -57,4 +57,6 @@ def cmd_args_parser():
     rem_parser.add_argument('--url', required=True,
                             help="Url of the GPU node to remove")
 
+    subparsers.add_parser("hosts", help="Get all GPU hosts")
+
     return parser

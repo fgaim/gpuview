@@ -153,3 +153,12 @@ def remove_host(url):
         print("Removed host: %s!" % url)
     else:
         print("Couldn't find host: %s!" % url)
+
+
+def print_hosts():
+    hosts = load_hosts()
+    if len(hosts):
+        hosts = sorted(hosts.items(), key=lambda g: g[1])
+        print('#   Name\tURL')
+        for idx, host in enumerate(hosts):
+            print('%02d. %s\t%s' % (idx+1, host[1], host[0]))
