@@ -31,10 +31,10 @@ def test_hosts_db():
     assert dummy_host not in hosts
 
 
-def test_cmd_args_parser():
-    from .utils import cmd_args_parser
+def test_arg_parser():
+    from .utils import arg_parser
 
-    parser = cmd_args_parser()
+    parser = arg_parser()
     assert parser is not None
     # import pytest
     # with pytest.raises(Exception):

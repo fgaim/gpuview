@@ -7,6 +7,7 @@ Core functions of gpuview.
 
 import os
 import json
+import subprocess
 try:
     from urllib.request import urlopen
 except ImportError:
@@ -162,3 +163,18 @@ def print_hosts():
         print('#   Name\tURL')
         for idx, host in enumerate(hosts):
             print('%02d. %s\t%s' % (idx+1, host[1], host[0]))
+
+
+def install_service(host=None, port=None,
+                    safe_zone=False, exclude_self=False):
+    arg = ''
+    if host is not None:
+        arg += '--host %s ' % host
+    if port is not None:
+        arg += '--port %s ' % port
+    if safe_zone:
+        arg += '--safe-zone '
+    if exclude_self:
+        arg += '--exclude-self '
+    script = os.path.join(ABS_PATH, 'service.sh')
+    subprocess.call('{} "{}"'.format(script, arg.strip()), shell=True)

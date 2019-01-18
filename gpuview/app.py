@@ -13,8 +13,8 @@ from datetime import datetime
 
 from bottle import Bottle, TEMPLATE_PATH, template, response
 
-from .utils import cmd_args_parser
-from .core import my_gpustat, all_gpustats, add_host, remove_host, safe_zone, print_hosts
+from . import utils
+from . import core
 
 
 app = Bottle()
@@ -27,7 +27,7 @@ EXCLUDE_SELF = False  # Do not report to `/gpustat` calls.
 
 @app.route('/')
 def index():
-    gpustats = all_gpustats()
+    gpustats = core.all_gpustats()
     now = datetime.now().strftime('Updated at %Y-%m-%d %H-%M-%S')
     return template('index', gpustats=gpustats, update_time=now)
 
@@ -36,7 +36,7 @@ def index():
 def report_gpustat():
     """
     Returns the gpustat of this host.
-        See `exclude-self` option of `gpuview start`.
+        See `exclude-self` option of `gpuview run`.
     """
 
     def _date_handler(obj):
@@ -49,25 +49,30 @@ def report_gpustat():
     if EXCLUDE_SELF:
         resp = {'error': 'Excluded self!'}
     else:
-        resp = my_gpustat()
+        resp = core.my_gpustat()
     return json.dumps(resp, default=_date_handler)
 
 
 def main():
-    parser = cmd_args_parser()
+    parser = utils.arg_parser()
     args = parser.parse_args()
 
-    if 'start' == args.action:
-        safe_zone(args.safe_zone)
+    if 'run' == args.action:
+        core.safe_zone(args.safe_zone)
         global EXCLUDE_SELF
         EXCLUDE_SELF = args.exclude_self
         app.run(host=args.host, port=args.port, debug=args.debug)
+    elif 'service' == args.action:
+        core.install_service(host=args.host,
+                             port=args.port,
+                             safe_zone=args.safe_zone,
+                             exclude_self=args.exclude_self)
     elif 'add' == args.action:
-        add_host(args.url, args.name)
+        core.add_host(args.url, args.name)
     elif 'remove' == args.action:
-        remove_host(args.url)
+        core.remove_host(args.url)
     elif 'hosts' == args.action:
-        print_hosts()
+        core.print_hosts()
     else:
         parser.print_help()
 

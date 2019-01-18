@@ -25,7 +25,7 @@ class _HelpAction(argparse._HelpAction):
         parser.exit()
 
 
-def cmd_args_parser():
+def arg_parser():
     parser = argparse.ArgumentParser(add_help=False)
     subparsers = parser.add_subparsers(dest='action', help="Action")
     parser.add_argument('-v', '--version', action='version',
@@ -35,19 +35,22 @@ def cmd_args_parser():
     parser.add_argument('-h', '--help', action=_HelpAction,
                         help='Print this help message')
 
-    run_parser = subparsers.add_parser("start", help="Start gpuview server")
-    run_parser.add_argument('--host', default='0.0.0.0',
-                            help="IP address of host (default: 0.0.0.0)")
-    run_parser.add_argument('--port', default=9988,
-                            help="Port number of host (default: 9988)")
-    run_parser.add_argument('--safe-zone', action='store_true',
-                            help="Report all details including user names.")
-    run_parser.add_argument('--exclude-self', action='store_true',
-                            help="Don't report to others but self dashboard.")
+    base_parser = argparse.ArgumentParser(add_help=False)
+    base_parser.add_argument('--host', default='0.0.0.0',
+                             help="IP address of host (default: 0.0.0.0)")
+    base_parser.add_argument('--port', default=9988,
+                             help="Port number of host (default: 9988)")
+    base_parser.add_argument('--safe-zone', action='store_true',
+                             help="Report all details including usernames")
+    base_parser.add_argument('--exclude-self', action='store_true',
+                             help="Don't report to others but self-dashboard")
+
+    run_parser = subparsers.add_parser("run", parents=[base_parser],
+                                       help="Run gpuview server")
     run_parser.add_argument('-d', '--debug', action='store_true',
                             help="Run server in debug mode")
 
-    add_parser = subparsers.add_parser("add", help="Add a new GPU host")
+    add_parser = subparsers.add_parser("add", help="Register a new GPU host")
     add_parser.add_argument('--url', required=True,
                             help="URL of GPU host (IP:Port, eg. X.X.X.X:9988")
     add_parser.add_argument('--name', default=None,
@@ -57,6 +60,9 @@ def cmd_args_parser():
     rem_parser.add_argument('--url', required=True,
                             help="Url of the GPU node to remove")
 
-    subparsers.add_parser("hosts", help="Get all GPU hosts")
+    subparsers.add_parser("hosts", help="Print all GPU hosts")
+
+    subparsers.add_parser("service", parents=[base_parser],
+                          help="Install gpuview as a service")
 
     return parser
