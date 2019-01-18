@@ -50,7 +50,7 @@ Usage
 
 Once `gpuview` is installed, it can be started as follows:
 ```
-$ gpuview start --safe-zone
+$ gpuview run --safe-zone
 ```
 This will start the dasboard at `http://0.0.0.0:9988`.
 
@@ -60,30 +60,38 @@ By default, `gpuview` listens to IP `0.0.0.0` and port `9988`, but these can be 
 
 Execute `gpuview -h` to see runtime options.
 
-* `start`              : Start dashboard server
-  * `--host`           : Name or IP address of host (default: 0.0.0.0)
+* `run`                : Start `gpuview` dashboard server
+  * `--host`           : URL or IP address of host (default: 0.0.0.0)
   * `--port`           : Port number to listen to (default: 9988)
-  * `--safe-zone`      : Safe to report all details including user names
-  * `--exclude-self`   : Don't report to others but to self dashboard
+  * `--safe-zone`      : Safe to report all details, eg. usernames
+  * `--exclude-self`   : Don't report to others but to self-dashboard
   * `-d`, `--debug`    : Run server in debug mode (for developers)
 * `add`                : Add a GPU host to dashboard
   * `--url`            : URL of host [IP:Port], eg. X.X.X.X:9988
   * `--name`           : Optional readable name for the host, eg. Node101
 * `remove`             : Remove a registered host from dashboard
   * `--url`            : URL of host to remove, eg. X.X.X.X:9988
+* `hosts`              : Print out all registered hosts
+* `service`            : Install `gpuview` as system service
+  * `--host`           : URL or IP address of host (default: 0.0.0.0)
+  * `--port`           : Port number to listen to (default: 9988)
+  * `--safe-zone`      : Safe to report all details, eg. usernames
+  * `--exclude-self`   : Don't report to others but to self-dashboard
 * `-v`, `--version`    : Print versions of `gpuview` and `gpustat`
 * `-h`, `--help`       : Print help for command-line options
 
 
-### Run as Service
+### Install as a Service
 
-To permanently run `gpuview` it needs to be started as a background service. This can be done using `nohup` and `&` as follows:
+To permanently run `gpuview` it needs to be started as a background service.
+This process will require a `sudo` privilege authentication.
+Run the following command only once to deploy as a service:
 
 ```
-$ sudo nohup gpuview start --safe-zone &
+$ gpuview service [--safe-zone] [--exlude-self]
 ```
 
-A better way of handling this will be implemented in future, see [todo](todo).
+If successful, the `gpuview` service is started immediately and will also autostart at boot time. It can be controlled using `supervisorctl start|stop|restart gpuview`.
 
 
 ### Monitoring multiple hosts
@@ -116,7 +124,7 @@ it does not report sensitive details such as user names by default. This can be 
 running in a trusted network, using the `--safe-zone` option to report all details. 
 
 
-The `--exclude-self` option of the start command can be used to prevent other dashboards from getting stats of the current machine. This way the stats are shown only on the host's own dashboard.
+The `--exclude-self` option of the run command can be used to prevent other dashboards from getting stats of the current machine. This way the stats are shown only on the host's own dashboard.
 
 
 Detailed view of GPUs across multiple servers.  
