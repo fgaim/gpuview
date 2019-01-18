@@ -48,6 +48,9 @@ from the terminal.
 Usage
 -----
 
+`gpuview` can be used in two modes as a temporary process or as a background service.
+
+### Run gpuview
 Once `gpuview` is installed, it can be started as follows:
 ```
 $ gpuview run --safe-zone
@@ -55,10 +58,27 @@ $ gpuview run --safe-zone
 This will start the dasboard at `http://0.0.0.0:9988`.
 
 
-By default, `gpuview` listens to IP `0.0.0.0` and port `9988`, but these can be changed using `--host` and `--port`. The `safe-zone` option implies reporting all detials including user names, but it can be turned off for security reasons.
+By default, `gpuview` runs at `0.0.0.0` and port `9988`, but these can be changed using `--host` and `--port`. The `safe-zone` option means report all detials including usernames, but it can be turned off for security reasons.
+
+### Run as a Service
+To permanently run `gpuview` it needs to be deployed as a background service.
+This will require a `sudo` privilege authentication.
+The following command needs to be executed only once:
+
+```
+$ gpuview service [--safe-zone] [--exlude-self]
+```
+
+If successful, the `gpuview` service is run immediately and will also autostart at boot time. It can be controlled using `supervisorctl start|stop|restart gpuview`.
 
 
-Execute `gpuview -h` to see runtime options.
+### Runtime options
+
+There a few important options in `gpuview`, use `-h` to see them all.
+
+```
+$ gpuview -h
+```
 
 * `run`                : Start `gpuview` dashboard server
   * `--host`           : URL or IP address of host (default: 0.0.0.0)
@@ -81,36 +101,28 @@ Execute `gpuview -h` to see runtime options.
 * `-h`, `--help`       : Print help for command-line options
 
 
-### Install as a Service
-
-To permanently run `gpuview` it needs to be started as a background service.
-This process will require a `sudo` privilege authentication.
-Run the following command only once to deploy as a service:
-
-```
-$ gpuview service [--safe-zone] [--exlude-self]
-```
-
-If successful, the `gpuview` service is started immediately and will also autostart at boot time. It can be controlled using `supervisorctl start|stop|restart gpuview`.
-
-
 ### Monitoring multiple hosts
 
 To aggregate the stats of multiple machines, they can be registered to one dashboard using their address and the port number running `gpustat`.
 
-Add a host as follows:
+Register a host to monitor as follows:
 ```
-gpuview add --url <ip:port> --name <name>
+$ gpuview add --url <ip:port> --name <name>
 ```
 
 Remove a registered host as follows:
 ```
-gpuview remove --url <ip:port> --name <name>
+$ gpuview remove --url <ip:port> --name <name>
 ```
 
-> Note: `gpuview` service should be started in all hosts that need to be monitored.
+Display all registered hosts as follows:
+```
+$ gpuview hosts
+```
 
-> Tip: `gpuview` can be setup on a none GPU machine (for example, a laptop) to monitor remote servers. 
+> Note: the `gpuview` service needs to run in all hosts that will be monitored.
+
+> Tip: `gpuview` can be setup on a none GPU machine, such as laptops, to monitor remote GPU servers. 
 
 
 etc
@@ -129,7 +141,7 @@ The `--exclude-self` option of the run command can be used to prevent other dash
 
 Detailed view of GPUs across multiple servers.  
 
-![Screenshot of gpuview](https://github.com/fgaim/gpuview/blob/master/imgs/dash-1.png)
+![Screenshot of gpuview](https://github.com/fgaim/gpuview/blob/master/imgs/dash-2.png)
 
 
 License
