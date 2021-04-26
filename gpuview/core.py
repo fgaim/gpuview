@@ -39,7 +39,11 @@ def my_gpustat():
     try:
         from gpustat import GPUStatCollection
         stat = GPUStatCollection.new_query().jsonify()
-        for gpu in stat['gpus']:
+        delete_list = []
+        for gpu_id, gpu in enumerate(stat['gpus']):
+            if type(gpu['processes']) is str:
+                delete_list.append(gpu_id)
+                continue
             gpu['memory'] = round(float(gpu['memory.used']) /
                                   float(gpu['memory.total']) * 100)
             if SAFE_ZONE:
@@ -47,8 +51,8 @@ def my_gpustat():
                                         for p in gpu['processes']]))
                 user_process = ['%s(%s,%sM)' % (
                     p['username'], p['command'], p['gpu_memory_usage'])
-                    for p in gpu['processes']
-                ]
+                                for p in gpu['processes']
+                                ]
                 gpu['user_processes'] = ' '.join(user_process)
             else:
                 gpu['users'] = len(set([p['username']
@@ -66,6 +70,11 @@ def my_gpustat():
                 gpu['flag'] = 'bg-warning'
             elif gpu['temperature.gpu'] > 25:
                 gpu['flag'] = 'bg-success'
+
+        if delete_list:
+            for gpu_id in delete_list:
+                stat['gpus'].pop(gpu_id)
+
         return stat
     except Exception as e:
         return {'error': '%s!' % getattr(e, 'message', str(e))}
