@@ -49,10 +49,11 @@ def my_gpustat():
             if SAFE_ZONE:
                 gpu['users'] = len(set([p['username']
                                         for p in gpu['processes']]))
-                user_process = ['%s(%s,%sM)' % (
-                    p['username'], p['command'], p['gpu_memory_usage'])
-                                for p in gpu['processes']
-                                ]
+                user_process = [
+                    '%s(%s,%sM)' % (p['username'],
+                                    p['command'], p['gpu_memory_usage'])
+                    for p in gpu['processes']
+                ]
                 gpu['user_processes'] = ' '.join(user_process)
             else:
                 gpu['users'] = len(set([p['username']
