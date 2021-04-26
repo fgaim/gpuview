@@ -35,3 +35,6 @@ echo ''
 sudo supervisorctl restart gpuview
 
 echo '~DONE~'
+echo ''
+echo 'Visit http://0.0.0.0:9988 in your browser.'
+echo ''
