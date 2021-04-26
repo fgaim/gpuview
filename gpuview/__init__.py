@@ -2,7 +2,7 @@
 The gpuview module.
 """
 
-version_info = (0, 3, 5)
+version_info = (0, 4, 0)
 __version__ = '.'.join(str(c) for c in version_info)
 
 
