@@ -28,16 +28,10 @@ Setup
 
 Python is required,`gpuview` has been tested with both 2.7 and 3 versions.
 
-Install from [PyPI][pypi_gpuview]:
+Install directly from repo:
 
 ```
-$ pip install gpuview
-```
-
-[or] Install directly from repo:
-
-```
-$ pip install git+https://github.com/fgaim/gpuview.git@master
+$ pip install git+https://github.com/pha123661/gpuview.git@main
 ```
 
 > `gpuview` installs the latest version of `gpustat` from `pypi`, therefore, its commands are available 
@@ -66,7 +60,7 @@ This will require a `sudo` privilege authentication.
 The following command needs to be executed only once:
 
 ```
-$ gpuview service [--safe-zone] [--exlude-self]
+$ gpuview service [--safe-zone] [--exlude-self] [--host 0.0.0.0] [--port 9988]
 ```
 
 If successful, the `gpuview` service is run immediately and will also autostart at boot time. It can be controlled using `supervisorctl start|stop|restart gpuview`.
