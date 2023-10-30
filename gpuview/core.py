@@ -97,7 +97,7 @@ def all_gpustats():
     hosts = load_hosts()
     for url in hosts:
         try:
-            raw_resp = urlopen(url + '/gpustat')
+            raw_resp = urlopen(url + '/gpustat', timeout=3)
             gpustat = json.loads(raw_resp.read())
             raw_resp.close()
             if not gpustat or 'gpus' not in gpustat:
