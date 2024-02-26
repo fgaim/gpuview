@@ -27,10 +27,13 @@ EXCLUDE_SELF = False  # Do not report to `/gpustat` calls.
 
 @app.route('/')
 def index():
+    return template('index')
+
+@app.route('/update')
+def update():
     gpustats = core.all_gpustats()
     now = datetime.now().strftime('Updated at %Y-%m-%d %H-%M-%S')
-    return template('index', gpustats=gpustats, update_time=now)
-
+    return template('body', gpustats=gpustats, update_time=now)
 
 @app.route('/gpustat', methods=['GET'])
 def report_gpustat():
