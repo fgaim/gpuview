@@ -44,6 +44,10 @@ def arg_parser():
                              help="Report all details including usernames")
     base_parser.add_argument('--exclude-self', action='store_true',
                              help="Don't report to others but self-dashboard")
+    base_parser.add_argument('--update-time', type=int, default=5,
+                             help="Gpuview update time (default: 5 [sec])")
+    base_parser.add_argument('--timeout', type=int, default=5,
+                             help="Timeout when querying each server for gpu information (default: 5 [sec])")
 
     run_parser = subparsers.add_parser("run", parents=[base_parser],
                                        help="Run gpuview server")
