@@ -13,7 +13,6 @@ try:
 except ImportError:
     from urllib2 import urlopen
 
-
 ABS_PATH = os.path.dirname(os.path.realpath(__file__))
 HOSTS_DB = os.path.join(ABS_PATH, 'gpuhosts.db')
 SAFE_ZONE = False  # Safe to report all details.
@@ -81,7 +80,7 @@ def my_gpustat():
         return {'error': '%s!' % getattr(e, 'message', str(e))}
 
 
-def all_gpustats():
+def all_gpustats(timeout):
     """
     Aggregates the gpustats of all registered hosts and this host.
 
@@ -97,7 +96,7 @@ def all_gpustats():
     hosts = load_hosts()
     for url in hosts:
         try:
-            raw_resp = urlopen(url + '/gpustat')
+            raw_resp = urlopen(url + '/gpustat', timeout=timeout)
             gpustat = json.loads(raw_resp.read())
             raw_resp.close()
             if not gpustat or 'gpus' not in gpustat:
