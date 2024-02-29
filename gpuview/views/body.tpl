@@ -92,7 +92,7 @@
                     </table>
                 </div>
             </div>
-            <div class="card-footer small text-muted">{{ update_time }}</div>
+            <div class="card-footer small text-muted">{{ refresh_time }}</div>
         </div>
         <footer class="sticky-footer">
             <div class="container">

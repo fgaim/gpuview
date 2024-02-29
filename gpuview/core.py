@@ -6,8 +6,9 @@ Core functions of gpuview.
 """
 
 import os
-import json
 import subprocess
+import asyncio
+import aiohttp
 try:
     from urllib.request import urlopen
 except ImportError:
@@ -79,8 +80,18 @@ def my_gpustat():
     except Exception as e:
         return {'error': '%s!' % getattr(e, 'message', str(e))}
 
+async def async_fetch_gpustat(session, url):
+    try:
+        async with session.get(url + '/gpustat') as response:
+            gpustat = await response.json()
+            if gpustat and 'gpus' in gpustat:
+                return gpustat
+    except Exception as e:
+        print('Error: %s getting gpustat from %s' %
+              (getattr(e, 'message', str(e)), url))
 
-def all_gpustats(timeout):
+
+async def async_all_gpustats(int_timeout):
     """
     Aggregates the gpustats of all registered hosts and this host.
 
@@ -94,19 +105,16 @@ def all_gpustats(timeout):
         gpustats.append(mystat)
 
     hosts = load_hosts()
-    for url in hosts:
-        try:
-            raw_resp = urlopen(url + '/gpustat', timeout=timeout)
-            gpustat = json.loads(raw_resp.read())
-            raw_resp.close()
-            if not gpustat or 'gpus' not in gpustat:
-                continue
+    timeout = aiohttp.ClientTimeout(total=int_timeout*0.9)
+    async with aiohttp.ClientSession(timeout=timeout) as session:
+        tasks = [async_fetch_gpustat(session, url) for url in hosts]
+        results = await asyncio.gather(*tasks)
+
+    for result, url in zip(results, hosts):
+        if result:
             if hosts[url] != url:
-                gpustat['hostname'] = hosts[url]
-            gpustats.append(gpustat)
-        except Exception as e:
-            print('Error: %s getting gpustat from %s' %
-                  (getattr(e, 'message', str(e)), url))
+                result['hostname'] = hosts[url]
+            gpustats.append(result)
 
     try:
         sorted_gpustats = sorted(gpustats, key=lambda g: g['hostname'])
@@ -116,6 +124,8 @@ def all_gpustats(timeout):
         print("Error: %s" % getattr(e, 'message', str(e)))
     return gpustats
 
+def all_gpustats(timeout):
+    return asyncio.run(async_all_gpustats(timeout))
 
 def load_hosts():
     """

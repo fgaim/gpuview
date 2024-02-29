@@ -24,19 +24,17 @@ TEMPLATE_PATH.insert(0, abs_views_path)
 
 EXCLUDE_SELF = False  # Do not report to `/gpustat` calls.
 
-UPDATE_TIME = 5
-
-TIMEOUT = 5
+REFRESH_TIME = 5
 
 @app.route('/')
 def index():
-    return template('index', update_time=UPDATE_TIME)
+    return template('index', update_time=REFRESH_TIME)
 
 @app.route('/update', method='GET')
 def update():
-    gpustats = core.all_gpustats(TIMEOUT)
+    gpustats = core.all_gpustats(REFRESH_TIME)
     now = datetime.now().strftime('Updated at %Y-%m-%d %H-%M-%S')
-    return template('body', gpustats=gpustats, update_time=now)
+    return template('body', gpustats=gpustats, refresh_time=now)
 
 @app.route('/gpustat', method='GET')
 def report_gpustat():
@@ -65,10 +63,9 @@ def main():
 
     if 'run' == args.action:
         core.safe_zone(args.safe_zone)
-        global EXCLUDE_SELF, UPDATE_TIME, TIMEOUT
+        global EXCLUDE_SELF, REFRESH_TIME
         EXCLUDE_SELF = args.exclude_self
-        UPDATE_TIME = args.update_time
-        TIMEOUT = args.timeout
+        REFRESH_TIME = args.refresh_time
         app.run(host=args.host, port=args.port, debug=args.debug)
     elif 'service' == args.action:
         core.install_service(host=args.host,
