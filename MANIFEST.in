@@ -1,3 +1,4 @@
 include README.md
 include gpuview/views/index.tpl
+include gpuview/views/body.tpl
 include gpuview/service.sh
