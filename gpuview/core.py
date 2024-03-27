@@ -197,6 +197,6 @@ def install_service(host=None, port=None,
     if exclude_self:
         arg += '--exclude-self '
     if refresh_time is not None:
-        arg += '--refresh-time ' % refresh_time
+        arg += '--refresh-time %s' % refresh_time
     script = os.path.join(ABS_PATH, 'service.sh')
     subprocess.call('{} "{}"'.format(script, arg.strip()), shell=True)
