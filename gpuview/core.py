@@ -185,7 +185,8 @@ def print_hosts():
 
 
 def install_service(host=None, port=None,
-                    safe_zone=False, exclude_self=False):
+                    safe_zone=False, exclude_self=False,
+                    refresh_time=None):
     arg = ''
     if host is not None:
         arg += '--host %s ' % host
@@ -195,5 +196,7 @@ def install_service(host=None, port=None,
         arg += '--safe-zone '
     if exclude_self:
         arg += '--exclude-self '
+    if refresh_time is not None:
+        arg += '--refresh-time ' % refresh_time
     script = os.path.join(ABS_PATH, 'service.sh')
     subprocess.call('{} "{}"'.format(script, arg.strip()), shell=True)

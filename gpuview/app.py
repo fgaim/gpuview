@@ -71,7 +71,8 @@ def main():
         core.install_service(host=args.host,
                              port=args.port,
                              safe_zone=args.safe_zone,
-                             exclude_self=args.exclude_self)
+                             exclude_self=args.exclude_self,
+                             refresh_time=args.refresh_time)
     elif 'add' == args.action:
         core.add_host(args.url, args.name)
     elif 'remove' == args.action:
