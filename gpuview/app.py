@@ -24,15 +24,19 @@ TEMPLATE_PATH.insert(0, abs_views_path)
 
 EXCLUDE_SELF = False  # Do not report to `/gpustat` calls.
 
+REFRESH_TIME = 5
 
 @app.route('/')
 def index():
-    gpustats = core.all_gpustats()
+    return template('index', update_time=REFRESH_TIME)
+
+@app.route('/update', method='GET')
+def update():
+    gpustats = core.all_gpustats(REFRESH_TIME)
     now = datetime.now().strftime('Updated at %Y-%m-%d %H-%M-%S')
-    return template('index', gpustats=gpustats, update_time=now)
+    return template('body', gpustats=gpustats, refresh_time=now)
 
-
-@app.route('/gpustat', methods=['GET'])
+@app.route('/gpustat', method='GET')
 def report_gpustat():
     """
     Returns the gpustat of this host.
@@ -59,14 +63,16 @@ def main():
 
     if 'run' == args.action:
         core.safe_zone(args.safe_zone)
-        global EXCLUDE_SELF
+        global EXCLUDE_SELF, REFRESH_TIME
         EXCLUDE_SELF = args.exclude_self
+        REFRESH_TIME = args.refresh_time
         app.run(host=args.host, port=args.port, debug=args.debug)
     elif 'service' == args.action:
         core.install_service(host=args.host,
                              port=args.port,
                              safe_zone=args.safe_zone,
-                             exclude_self=args.exclude_self)
+                             exclude_self=args.exclude_self,
+                             refresh_time=args.refresh_time)
     elif 'add' == args.action:
         core.add_host(args.url, args.name)
     elif 'remove' == args.action:
