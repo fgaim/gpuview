@@ -5,6 +5,7 @@ Unit and integration tests for gpuview
 
 def test_my_gpustat():
     from .core import my_gpustat
+
     stat = my_gpustat()
     assert stat is not None
     assert isinstance(stat, dict)
@@ -12,15 +13,16 @@ def test_my_gpustat():
 
 def test_all_gpustats():
     from .core import all_gpustats
+
     stats = all_gpustats()
     assert stats is not None
     assert isinstance(stats, list)
 
 
 def test_hosts_db():
-    from .core import load_hosts, add_host, remove_host
+    from .core import add_host, load_hosts, remove_host
 
-    dummy_host = 'dummy.host'
+    dummy_host = "dummy.host"
     add_host(dummy_host)
 
     hosts = load_hosts()
