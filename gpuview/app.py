@@ -35,11 +35,13 @@ def index() -> str:
     return template("index", gpustats=gpustats, update_time=now)
 
 
-@app.route("/gpustat", methods=["GET"])
+@app.route("/gpustat", methods=["GET"])  # deprecated alias
+@app.route("/api/gpustat/self", methods=["GET"])
 def report_gpustat() -> str:
     """
     Returns the gpustat of this host.
         See `exclude-self` option of `gpuview run`.
+        Available at both /gpustat (legacy) and /api/gpustat/self (RESTful).
     """
 
     def _date_handler(obj: Any) -> str:
@@ -55,6 +57,27 @@ def report_gpustat() -> str:
         resp = {"error": "Excluded self!"}
     else:
         resp = core.my_gpustat()
+    return json.dumps(resp, default=_date_handler)
+
+
+@app.route("/api/gpustat/all", methods=["GET"])
+def api_gpustat_all() -> str:
+    """
+    Returns aggregated gpustats for all hosts (same data as index page).
+    Used by frontend for live updates.
+    """
+
+    def _date_handler(obj: Any) -> str:
+        if hasattr(obj, "isoformat"):
+            return obj.isoformat()
+        else:
+            raise TypeError(type(obj))
+
+    response.content_type = "application/json"
+    if DEMO_MODE:
+        resp = demo.get_demo_gpustats()
+    else:
+        resp = core.all_gpustats()
     return json.dumps(resp, default=_date_handler)
 
 

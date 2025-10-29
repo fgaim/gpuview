@@ -35,7 +35,7 @@
                          data-bs-placement="top"
                          data-bs-html="true"
                          title="<div class='text-start small'>
-<strong>Host:</strong> {{ gpustat.get('hostname', '-') }}<br>
+<strong>Node:</strong> {{ gpustat.get('hostname', '-') }}<br>
 <strong>Device:</strong> {{ gpu.get('name', '-') }}<br>
 <strong>Device ID:</strong> {{ gpu.get('index', '-') }}<br>
 <strong>Memory:</strong> {{ gpu.get('memory.used', '-') }}/{{ gpu.get('memory.total', '-') }} MB<br>
@@ -83,13 +83,13 @@
             <!-- GPU Stat Card-->
             <div class="card mb-3">
                 <div class="card-header">
-                    <i class="fas fa-table"></i> All Hosts and GPUs</div>
+                    <i class="fas fa-table"></i> All Nodes and GPUs</div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered" id="dataTable" width="100%">
                             <thead>
                                 <tr>
-                                    <th scope="col">Host</th>
+                                    <th scope="col">Node</th>
                                     <th scope="col">Device</th>
                                     <th scope="col">Temp.</th>
                                     <th scope="col">Util.</th>
@@ -116,8 +116,37 @@
                         </table>
                     </div>
                 </div>
-                <div class="card-footer small text-muted">{{ update_time }}</div>
+                <div class="card-footer small text-muted px-3 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div id="update-timestamp">{{ update_time }}</div>
+                        <div class="d-flex align-items-center gap-3">
+                            <span id="refresh-status">Auto-refresh: <span class="text-success">ON</span> (every 3s)</span>
+                            <a href="#" id="toggle-refresh" class="text-decoration-none small">
+                                <i class="fas fa-pause me-1"></i>Pause
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="card bg-light">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center flex-wrap gap-3">
+                                <h6 class="card-title mb-0 me-2"><i class="fas fa-palette me-2"></i>GPU Temperature Legend:</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge rounded-pill bg-danger px-2 py-1">Hot (>75°C)</span>
+                                    <span class="badge rounded-pill bg-warning px-2 py-1">Warm (50-75°C)</span>
+                                    <span class="badge rounded-pill bg-success px-2 py-1">Normal (25-50°C)</span>
+                                    <span class="badge rounded-pill bg-primary px-2 py-1">Cool (<25°C)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <footer class="py-4 bg-dark">
                 <div class="container">
                     <div class="text-center">
@@ -135,14 +164,161 @@
         <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
         <script>
+            let dataTable;
+            let refreshInterval;
+            let isRefreshEnabled = true;
+
             document.addEventListener('DOMContentLoaded', function() {
-                new DataTable('#dataTable');
+                dataTable = new DataTable('#dataTable', {
+                    createdRow: function(row, data, dataIndex) {
+                        row.classList.add('small');
+                    },
+                    columnDefs: [
+                        { className: 'text-start', targets: '_all' }
+                    ]
+                });
 
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                     return new bootstrap.Tooltip(tooltipTriggerEl);
                 });
+
+                const toggleButton = document.getElementById('toggle-refresh');
+                const refreshStatus = document.getElementById('refresh-status');
+
+                toggleButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    isRefreshEnabled = !isRefreshEnabled;
+
+                    if (isRefreshEnabled) {
+                        refreshInterval = setInterval(updateDashboard, 3000);
+                        toggleButton.innerHTML = '<i class="fas fa-pause me-1"></i>Pause';
+                        refreshStatus.innerHTML = 'Auto-refresh: <span class="text-success">ON</span> (every 3s)';
+                    } else {
+                        clearInterval(refreshInterval);
+                        toggleButton.innerHTML = '<i class="fas fa-play me-1"></i>Resume';
+                        refreshStatus.innerHTML = 'Auto-refresh: <span class="text-danger">PAUSED</span>';
+                    }
+                });
+
+                // Auto-refresh every 3 seconds
+                refreshInterval = setInterval(updateDashboard, 3000);
             });
+
+            async function updateDashboard() {
+                try {
+                    const response = await fetch('/api/gpustat/all');
+                    if (!response.ok) return;
+
+                    const gpustats = await response.json();
+                    updateCards(gpustats);
+                    updateTable(gpustats);
+                    const now = new Date();
+                    const timeString = now.toLocaleString() + ' ' + Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    document.getElementById('update-timestamp').textContent = `Updated at ${timeString}`;
+                } catch (error) {
+                    console.log('Auto-refresh failed:', error);
+                }
+            }
+
+            function updateCards(gpustats) {
+                var existingTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+                existingTooltips.forEach(function(element) {
+                    var tooltip = bootstrap.Tooltip.getInstance(element);
+                    if (tooltip) {
+                        tooltip.dispose();
+                    }
+                });
+
+                const cardsContainer = document.querySelector('.row');
+                cardsContainer.innerHTML = '';
+
+                gpustats.forEach(gpustat => {
+                    gpustat.gpus.forEach(gpu => {
+                        const temp = gpu['temperature.gpu'];
+                        let flag = 'bg-primary';
+                        if (temp > 75) flag = 'bg-danger';
+                        else if (temp > 50) flag = 'bg-warning';
+                        else if (temp > 25) flag = 'bg-success';
+
+                        const cardHtml = `
+                            <div class="col-xl-3 col-md-4 col-sm-6 mb-3">
+                                <div class="card text-white ${flag} h-100"
+                                     data-bs-toggle="tooltip"
+                                     data-bs-placement="top"
+                                     data-bs-html="true"
+                                     title="<div class='text-start small'>
+<strong>Node:</strong> ${gpustat.hostname || '-'}<br>
+<strong>Device:</strong> ${gpu.name || '-'}, ID: ${gpu.index || '-'}<br>
+<strong>Memory:</strong> ${gpu['memory.used'] || '-'} / ${gpu['memory.total'] || '-'} MB<br>
+<strong>Power:</strong> ${gpu['power.draw'] || '-'} / ${gpu['enforced.power.limit'] || '-'} W<br>
+<strong>Temperature:</strong> ${gpu['temperature.gpu'] || '-'}°C<br>
+<strong>Utilization:</strong> ${gpu['utilization.gpu'] || '-'}%<br>
+<strong>Processes:</strong> ${gpu['user_processes'] || '-'}
+</div>">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div>
+                                                <i class="fas fa-server me-2"></i>
+                                                <b>${gpustat.hostname || '-'}</b>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            [${gpu.index || ''}] ${gpu.name || '-'}
+                                        </div>
+                                    </div>
+                                    <div class="card-footer text-white small">
+                                        <div class="row g-1">
+                                            <div class="col-3">
+                                                <i class="fas fa-temperature-three-quarters" aria-hidden="true"></i>
+                                                ${gpu['temperature.gpu'] || '-'}°C
+                                            </div>
+                                            <div class="col-3">
+                                                <i class="fas fa-memory" aria-hidden="true"></i>
+                                                ${gpu.memory || '-'}%
+                                            </div>
+                                            <div class="col-3">
+                                                <i class="fas fa-cogs" aria-hidden="true"></i>
+                                                ${gpu['utilization.gpu'] || '-'}%
+                                            </div>
+                                            <div class="col-3">
+                                                <i class="fas fa-users" aria-hidden="true"></i>
+                                                ${gpu.users || '-'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        cardsContainer.insertAdjacentHTML('beforeend', cardHtml);
+                    });
+                });
+
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+
+            function updateTable(gpustats) {
+                dataTable.clear();
+                const newData = [];
+                gpustats.forEach(gpustat => {
+                    gpustat.gpus.forEach(gpu => {
+                        newData.push([
+                            gpustat.hostname || '-',
+                            `[${gpu.index || ''}] ${gpu.name || '-'}`,
+                            `${gpu['temperature.gpu'] || '-'}°C`,
+                            `${gpu['utilization.gpu'] || '-'}%`,
+                            `${gpu.memory || '-'}% (${gpu['memory.used'] || ''}/${gpu['memory.total'] || '-'})`,
+                            `${gpu['power.draw'] || '-'} / ${gpu['enforced.power.limit'] || '-'}`,
+                            gpu['user_processes'] || '-'
+                        ]);
+                    });
+                });
+                dataTable.rows.add(newData);
+                dataTable.draw(false);
+            }
         </script>
     </div>
 </body>

@@ -9,3 +9,4 @@ tmp/
 gpuhosts.db
 gpuview.log
 pypi.sh
+.DS_Store

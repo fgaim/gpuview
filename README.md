@@ -13,6 +13,8 @@ GPU is an expensive resource, and deep learning practitioners have to monitor th
 
 With `gpuview` one can monitor GPUs on the go, through a web browser. Moreover, **multiple GPU servers** can be registered into one `gpuview` dashboard and all stats are aggregated and accessible from one place.
 
+The dashboard features **live auto-refresh** (every 3 seconds) and includes interactive tooltips, temperature-based color coding, and pause/resume controls for real-time GPU monitoring.
+
 Dashboard view of nine GPUs across multiple servers:  
 
 ![Screenshot of gpuview](https://github.com/fgaim/gpuview/blob/main/imgs/dash-1.png)
@@ -60,6 +62,17 @@ gpuview run --demo
 
 This displays fake GPU statistics and is useful when developing on systems without NVIDIA GPUs or when showcasing the dashboard.
 
+## API Endpoints
+
+gpuview provides REST API endpoints for programmatic access:
+
+* `GET /api/gpustat/self` - Returns GPU statistics for the main host
+* `GET /api/gpustat/all` - Returns aggregated GPU statistics for all registered hosts
+
+**Legacy endpoints:**
+
+* `GET /gpustat` - Returns GPU statistics for the local host (backward compatibility)
+
 ### Run as a Service
 
 To permanently run `gpuview` it needs to be deployed as a background service.
@@ -87,7 +100,7 @@ gpuview -h
   * `--exclude-self`   : Don't report to others but to self-dashboard
   * `--demo`           : Run with fake data for testing purposes
   * `-d`, `--debug`    : Run server in debug mode (for developers)
-* `add`                : Add a GPU host to dashboard
+* `add`                : Add a GPU host to the dashboard
   * `--url`            : URL of host [IP:Port], eg. X.X.X.X:9988
   * `--name`           : Optional readable name for the host, eg. Node101
 * `remove`             : Remove a registered host from dashboard
@@ -117,7 +130,7 @@ Remove a registered host as follows:
 gpuview remove --url <ip:port> --name <name>
 ```
 
-Display all registered hosts as follows:
+Display all registered hosts/nodes as follows:
 
 ```sh
 gpuview hosts
