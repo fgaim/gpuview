@@ -14,7 +14,7 @@ from typing import Any
 
 from bottle import TEMPLATE_PATH, Bottle, response, template
 
-from . import core, utils
+from . import core, demo, utils
 
 app = Bottle()
 abs_path = os.path.dirname(os.path.realpath(__file__))
@@ -22,11 +22,15 @@ abs_views_path = os.path.join(abs_path, "views")
 TEMPLATE_PATH.insert(0, abs_views_path)
 
 EXCLUDE_SELF = False  # Do not report to `/gpustat` calls.
+DEMO_MODE = False  # Run with fake data.
 
 
 @app.route("/")
 def index() -> str:
-    gpustats = core.all_gpustats()
+    if DEMO_MODE:
+        gpustats = demo.get_demo_gpustats()
+    else:
+        gpustats = core.all_gpustats()
     now = datetime.now().strftime("Updated at %Y-%m-%d %H-%M-%S")
     return template("index", gpustats=gpustats, update_time=now)
 
@@ -45,7 +49,9 @@ def report_gpustat() -> str:
             raise TypeError(type(obj))
 
     response.content_type = "application/json"
-    if EXCLUDE_SELF:
+    if DEMO_MODE:
+        resp = demo.get_demo_local_gpustat()
+    elif EXCLUDE_SELF:
         resp = {"error": "Excluded self!"}
     else:
         resp = core.my_gpustat()
@@ -58,8 +64,9 @@ def main() -> None:
 
     if "run" == args.action:
         core.safe_zone(args.safe_zone)
-        global EXCLUDE_SELF
+        global EXCLUDE_SELF, DEMO_MODE
         EXCLUDE_SELF = args.exclude_self
+        DEMO_MODE = args.demo
         app.run(host=args.host, port=args.port, debug=args.debug)
     elif "service" == args.action:
         core.install_service(host=args.host, port=args.port, safe_zone=args.safe_zone, exclude_self=args.exclude_self)

@@ -48,9 +48,17 @@ Once `gpuview` is installed, it can be started as follows:
 gpuview run --safe-zone
 ```
 
-This will start the dasboard at `http://0.0.0.0:9988`.
+This will start the dashboard at `http://0.0.0.0:9988`.
 
-By default, `gpuview` runs at `0.0.0.0` and port `9988`, but these can be changed using `--host` and `--port`. The `safe-zone` option means report all detials including usernames, but it can be turned off for security reasons.
+By default, `gpuview` runs at `0.0.0.0` and port `9988`, but these can be changed using `--host` and `--port`. The `safe-zone` option means report all details including usernames, but it can be turned off for security reasons.
+
+For testing and development purposes, you can run gpuview with synthetic data:
+
+```sh
+gpuview run --demo
+```
+
+This displays fake GPU statistics and is useful when developing on systems without NVIDIA GPUs or when showcasing the dashboard.
 
 ### Run as a Service
 
@@ -77,6 +85,7 @@ gpuview -h
   * `--port`           : Port number to listen to (default: 9988)
   * `--safe-zone`      : Safe to report all details, eg. usernames
   * `--exclude-self`   : Don't report to others but to self-dashboard
+  * `--demo`           : Run with fake data for testing purposes
   * `-d`, `--debug`    : Run server in debug mode (for developers)
 * `add`                : Add a GPU host to dashboard
   * `--url`            : URL of host [IP:Port], eg. X.X.X.X:9988
@@ -136,7 +145,7 @@ Detailed view of GPUs across multiple servers.
 
 ## License
 
-[MIT License](LICENSE)
+`gpuview` is licensed under the [MIT License](LICENSE), which is a permissive open-source license that allows you to freely use, modify, and distribute this software.
 
 [repo_gpustat]: https://github.com/wookayin/gpustat
 [pypi_gpuview]: https://pypi.python.org/pypi/gpuview

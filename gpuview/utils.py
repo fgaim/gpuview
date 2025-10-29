@@ -43,6 +43,7 @@ def arg_parser():
 
     run_parser = subparsers.add_parser("run", parents=[base_parser], help="Run gpuview server")
     run_parser.add_argument("-d", "--debug", action="store_true", help="Run server in debug mode")
+    run_parser.add_argument("--demo", action="store_true", help="Run with fake data for testing purposes")
 
     add_parser = subparsers.add_parser("add", help="Register a new GPU host")
     add_parser.add_argument("--url", required=True, help="URL of GPU host (IP:Port, eg. X.X.X.X:9988")
