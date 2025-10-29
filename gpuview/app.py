@@ -10,6 +10,7 @@ Web API of gpuview.
 import json
 import os
 from datetime import datetime
+from typing import Any
 
 from bottle import TEMPLATE_PATH, Bottle, response, template
 
@@ -24,20 +25,20 @@ EXCLUDE_SELF = False  # Do not report to `/gpustat` calls.
 
 
 @app.route("/")
-def index():
+def index() -> str:
     gpustats = core.all_gpustats()
     now = datetime.now().strftime("Updated at %Y-%m-%d %H-%M-%S")
     return template("index", gpustats=gpustats, update_time=now)
 
 
 @app.route("/gpustat", methods=["GET"])
-def report_gpustat():
+def report_gpustat() -> str:
     """
     Returns the gpustat of this host.
         See `exclude-self` option of `gpuview run`.
     """
 
-    def _date_handler(obj):
+    def _date_handler(obj: Any) -> str:
         if hasattr(obj, "isoformat"):
             return obj.isoformat()
         else:
@@ -51,7 +52,7 @@ def report_gpustat():
     return json.dumps(resp, default=_date_handler)
 
 
-def main():
+def main() -> None:
     parser = utils.arg_parser()
     args = parser.parse_args()
 
