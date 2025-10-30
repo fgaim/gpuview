@@ -6,10 +6,10 @@ Core functions of gpuview.
 """
 
 import os
-import subprocess
 from typing import Any, Dict, List, Optional
 
 import requests
+from gpustat import GPUStatCollection
 
 ABS_PATH = os.path.dirname(os.path.realpath(__file__))
 HOSTS_DB = os.path.join(ABS_PATH, "gpuhosts.db")
@@ -34,8 +34,6 @@ def my_gpustat() -> Dict[str, Any]:
     """
 
     try:
-        from gpustat import GPUStatCollection
-
         stat = GPUStatCollection.new_query().jsonify()
         delete_list = []
         for gpu_id, gpu in enumerate(stat["gpus"]):
@@ -162,19 +160,3 @@ def print_hosts() -> None:
         print("#   Name\tURL")
         for idx, host in enumerate(hosts):
             print(f"{idx + 1:02d}. {host[1]}\t{host[0]}")
-
-
-def install_service(
-    host: Optional[str] = None, port: Optional[int] = None, safe_zone: bool = False, exclude_self: bool = False
-) -> None:
-    arg = ""
-    if host is not None:
-        arg += f"--host {host} "
-    if port is not None:
-        arg += f"--port {port} "
-    if safe_zone:
-        arg += "--safe-zone "
-    if exclude_self:
-        arg += "--exclude-self "
-    script = os.path.join(ABS_PATH, "service.sh")
-    subprocess.call([script, arg.strip()])
