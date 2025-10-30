@@ -26,14 +26,6 @@ class _HelpAction(argparse._HelpAction):
 def arg_parser():
     parser = argparse.ArgumentParser(add_help=False)
     subparsers = parser.add_subparsers(dest="action", help="Action")
-    parser.add_argument(
-        "-v",
-        "--version",
-        action="version",
-        help="Print gpuview and gpustat versions",
-        version="gpuview %s || gpustat %s" % (__version__, __gpustat__),
-    )
-    parser.add_argument("-h", "--help", action=_HelpAction, help="Print this help message")
 
     base_parser = argparse.ArgumentParser(add_help=False)
     base_parser.add_argument("--host", default="0.0.0.0", help="IP address of host (default: 0.0.0.0)")
@@ -54,6 +46,31 @@ def arg_parser():
 
     subparsers.add_parser("hosts", help="Print all GPU hosts")
 
-    subparsers.add_parser("service", parents=[base_parser], help="Install gpuview as a service")
+    service_parser = subparsers.add_parser("service", help="Manage the gpuview systemd service. Defaults to 'start'.")
+    service_subparsers = service_parser.add_subparsers(
+        dest="service_command", help="Service action [start, status, stop, delete]"
+    )
 
+    # It inherits --host, --port, etc. from base_parser
+    start_parser = service_subparsers.add_parser(
+        "start", parents=[base_parser], help="Install (if needed) and start the service."
+    )
+    start_parser.description = (
+        "Installs if not already installed and starts the gpuview service. "
+        "On first run, you can pass --host, --port, etc. "
+        "to configure the service."
+    )
+    service_subparsers.add_parser("status", help="Check service status")
+    service_subparsers.add_parser("stop", help="Stop the service")
+    service_subparsers.add_parser("delete", help="Stop and delete the service")
+    service_subparsers.add_parser("logs", help="View service logs using journalctl")
+
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        help="Print gpuview and gpustat versions",
+        version="gpuview %s || gpustat %s" % (__version__, __gpustat__),
+    )
+    parser.add_argument("-h", "--help", action=_HelpAction, help="Print this help message")
     return parser

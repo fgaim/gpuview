@@ -14,7 +14,9 @@ from typing import Any
 
 from bottle import TEMPLATE_PATH, Bottle, response, template
 
-from . import core, demo, utils
+from . import core, demo
+from . import service as service_manager
+from . import utils
 
 app = Bottle()
 abs_path = os.path.dirname(os.path.realpath(__file__))
@@ -91,8 +93,20 @@ def main() -> None:
         EXCLUDE_SELF = args.exclude_self
         DEMO_MODE = args.demo
         app.run(host=args.host, port=args.port, debug=args.debug)
+
     elif "service" == args.action:
-        core.install_service(host=args.host, port=args.port, safe_zone=args.safe_zone, exclude_self=args.exclude_self)
+        service_command = args.service_command or "start"
+        if service_command == "start":
+            service_manager.start(args)
+        elif service_command == "status":
+            service_manager.status(args)
+        elif service_command == "stop":
+            service_manager.stop(args)
+        elif service_command == "logs":
+            service_manager.logs(args)
+        elif service_command == "delete":
+            service_manager.delete(args)
+
     elif "add" == args.action:
         core.add_host(args.url, args.name)
     elif "remove" == args.action:
