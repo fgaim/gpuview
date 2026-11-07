@@ -142,6 +142,8 @@ gpuview hosts
 
 The `gpuview` service needs to run in all hosts that will be monitored.
 
+Hosts can register each other (for example, two machines that each show both on their own dashboard). The server handles requests concurrently, so a dashboard waiting on another host does not block that host from answering.
+
 > Tip: `gpuview` can be setup on a none GPU machine, such as laptops, to monitor remote GPU servers.
 
 ## API Endpoints
