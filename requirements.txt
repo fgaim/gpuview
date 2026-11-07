@@ -1,6 +1,7 @@
 gpustat>=1.1.1
 bottle>=0.12.14
 requests>=2.25.0
+waitress>=2.1.0
 # testing
 pytest>=7.0.0
 pytest-cov>=4.0.0

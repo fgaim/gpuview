@@ -92,7 +92,12 @@ def main() -> None:
         global EXCLUDE_SELF, DEMO_MODE
         EXCLUDE_SELF = args.exclude_self
         DEMO_MODE = args.demo
-        app.run(host=args.host, port=args.port, debug=args.debug)
+        # A dashboard request fetches /gpustat from every registered host. With the
+        # single-threaded default server, two hosts that list each other (or a host
+        # that lists itself) block on each other until the request times out.
+        # Waitress serves requests from a thread pool (4 threads by default), so a
+        # host can answer /gpustat while its own dashboard request is still waiting.
+        app.run(host=args.host, port=args.port, debug=args.debug, server="waitress")
 
     elif "service" == args.action:
         service_command = args.service_command or "start"

@@ -34,7 +34,7 @@ setuptools.setup(
     ],
     packages=["gpuview"],
     python_requires=">=3.9",
-    install_requires=["gpustat>=1.1.1", "bottle>=0.12.25", "requests>=2.25.0"],
+    install_requires=["gpustat>=1.1.1", "bottle>=0.12.25", "requests>=2.25.0", "waitress>=2.1.0"],
     extras_require={
         "dev": ["pytest", "pytest-cov", "flake8"],
         "test": ["pytest", "pytest-cov"],
